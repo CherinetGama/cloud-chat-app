@@ -1,5 +1,11 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'chat.db')
+
+def init_db():
+    conn = sqlite3.connect(db_path) # በ 'chat.db' ፋንታ db_path ተጠቀም
+    # ... ሌላው ኮድ ተመሳሳይ ነው
 import os
 
 app = Flask(__name__)
