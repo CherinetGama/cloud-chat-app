@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # ዳታቤዝ ዝግጅት
 def init_db():
-    conn = sqlite3.connect('chat.db')
+   sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS messages 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT, content TEXT)''')
