@@ -1,10 +1,10 @@
 import os
 import sqlite3
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-# ዳታቤዙ የሚቀመጥበትን ቦታ ማስተካከል
+# ዳታቤዙ በክላውድ ላይ በትክክል እንዲቀመጥ መንገዱን ማስተካከል።
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'chat.db')
 
@@ -13,37 +13,42 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# ዳታቤዙን ለመጀመሪያ ጊዜ መፍጠር
+# ዳታቤዙ እና ሰንጠረዡ (Table) መኖራቸውን ማረጋገጥ።
 def init_db():
     conn = get_db_connection()
-    conn.execute('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT)')
+    # 'messages' የሚባል table ከሌለ እንዲፈጥርልን
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT None,
+            content TEXT NOT None
+        )
+    ''')
     conn.commit()
     conn.close()
 
+# አፑ ስራ ሲጀምር ዳታቤዙን እንዲያዘጋጅ
 init_db()
 
 @app.route('/')
 def index():
     conn = get_db_connection()
-    messages = conn.execute('SELECT * FROM messages').fetchall()
+    messages = conn.execute('SELECT * FROM messages ORDER BY id DESC').fetchall()
     conn.close()
     return render_template('index.html', messages=messages)
 
-# ሌላው የኮድህ ክፍል ይቀጥላል...
 @app.route('/send', methods=['POST'])
 def send():
-    user = request.form.get('user')
+    name = request.form.get('name')
     content = request.form.get('content')
-    if user and content:
-        conn = sqlite3.connect('chat.db')
-        c = conn.cursor()
-        c.execute("INSERT INTO messages (user, content) VALUES (?, ?)", (user, content))
+    
+    if name and content:
+        conn = get_db_connection()
+        conn.execute('INSERT INTO messages (name, content) VALUES (?, ?)', (name, content))
         conn.commit()
         conn.close()
-    return redirect('/')
+    
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    init_db()
-    # Cloud ላይ እንዲሰራ host='0.0.0.0' አስፈላጊ ነው
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
