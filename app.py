@@ -15,13 +15,14 @@ def get_db_connection():
 
 # ዳታቤዙ እና ሰንጠረዡ (Table) መኖራቸውን ማረጋገጥ።
 def init_db():
-    conn = get_db_connection()
-    # 'messages' የሚባል table ከሌለ እንዲፈጥርልን
-    conn.execute('''
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    # ቴብሉ መኖሩን ቼክ አድርጎ ከሌለ ይፈጥረዋል
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT None,
-            content TEXT NOT None
+            name TEXT NOT NULL,
+            content TEXT NOT NULL
         )
     ''')
     conn.commit()
