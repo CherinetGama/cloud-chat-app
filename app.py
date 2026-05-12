@@ -1,33 +1,35 @@
-from flask import Flask, render_template, request, redirect
-import sqlite3
-basedir = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(basedir, 'chat.db')
-
-def init_db():
-    conn = sqlite3.connect(db_path) # በ 'chat.db' ፋንታ db_path ተጠቀም
-    # ... ሌላው ኮድ ተመሳሳይ ነው
 import os
+import sqlite3
+from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
 
-# ዳታቤዝ ዝግጅት
+# ዳታቤዙ የሚቀመጥበትን ቦታ ማስተካከል
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'chat.db')
+
+def get_db_connection():
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# ዳታቤዙን ለመጀመሪያ ጊዜ መፍጠር
 def init_db():
-   sqlite3.connect(db_path)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS messages 
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT, content TEXT)''')
+    conn = get_db_connection()
+    conn.execute('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT)')
     conn.commit()
     conn.close()
 
+init_db()
+
 @app.route('/')
 def index():
-    conn = sqlite3.connect('chat.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM messages ORDER BY id DESC")
-    msgs = c.fetchall()
+    conn = get_db_connection()
+    messages = conn.execute('SELECT * FROM messages').fetchall()
     conn.close()
-    return render_template('index.html', messages=msgs)
+    return render_template('index.html', messages=messages)
 
+# ሌላው የኮድህ ክፍል ይቀጥላል...
 @app.route('/send', methods=['POST'])
 def send():
     user = request.form.get('user')
