@@ -4,61 +4,63 @@
     <meta charset="UTF-8">
     <title>Cloud Chat App</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e5ddd5; padding: 20px; }
-        .chat-container { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; height: 90vh; display: flex; flex-direction: column; }
-        h2 { text-align: center; color: #075e54; margin-top: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e5ddd5; padding: 10px; }
+        .chat-container { max-width: 500px; margin: auto; background: #fff; border-radius: 10px; height: 90vh; display: flex; flex-direction: column; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #075e54; padding: 10px; margin: 0; background: #f0f0f0; border-radius: 10px 10px 0 0; }
+        .message-list { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
         
-        .message-list { flex-grow: 1; overflow-y: auto; padding: 10px; background-color: #e5ddd5; border-radius: 10px; margin-bottom: 15px; display: flex; flex-direction: column; }
+        .msg { max-width: 75%; padding: 8px 12px; margin-bottom: 8px; border-radius: 10px; font-size: 14px; position: relative; }
         
-        /* መልእክቶቹን በግራና በቀኝ የማድረጊያ ስታይል */
-        .msg { max-width: 75%; padding: 10px; margin-bottom: 8px; border-radius: 10px; position: relative; font-size: 14px; line-height: 1.4; }
+        /* የሌሎች መልእክት (ግራ) */
+        .other { align-self: flex-start; background-color: white; border-bottom-left-radius: 0; }
         
-        /* የሌሎች መልእክት (በግራ) */
-        .other { align-self: flex-start; background-color: white; color: black; border-bottom-left-radius: 0; }
-        
-        /* ያንተ መልእክት (በቀኝ) */
-        .me { align-self: flex-end; background-color: #dcf8c6; color: black; border-bottom-right-radius: 0; text-align: right; }
+        /* ያንተ መልእክት (ቀኝ) */
+        .me { align-self: flex-end; background-color: #dcf8c6; border-bottom-right-radius: 0; }
         
         strong { display: block; font-size: 12px; color: #075e54; margin-bottom: 2px; }
-        
-        .input-area { background: #f0f0f0; padding: 10px; border-radius: 10px; }
-        input, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { background-color: #075e54; color: white; padding: 10px; border: none; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .input-area { padding: 15px; background: #f0f0f0; border-radius: 0 0 10px 10px; }
+        input, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { background-color: #075e54; color: white; padding: 10px; border: none; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <h2>Cloud Chat</h2>
-        
         <div class="message-list" id="messageList">
             {% for message in messages %}
-                <div class="msg {% if message.name.lower() == 'cherinet gama' %}me{% else %}other{% endif %}">
+                <div class="msg" data-user="{{ message.name }}">
                     <strong>{{ message.name }}</strong>
                     {{ message.content }}
                 </div>
             {% endfor %}
         </div>
-
         <div class="input-area">
             <form id="chatForm" action="/send" method="POST">
                 <input type="text" id="username" name="name" placeholder="Your Name" required>
                 <textarea name="content" placeholder="Type a message..." required></textarea>
-                <button type="submit">Send</button>
+                <button type="submit">Send Message</button>
             </form>
         </div>
     </div>
 
     <script>
-        // ስምህን ሴቭ አድርጎ እንዲይዘው
         const nameInput = document.getElementById('username');
-        if (localStorage.getItem('chatUsername')) {
-            nameInput.value = localStorage.getItem('chatUsername');
-        }
+        const savedName = localStorage.getItem('chatUsername');
+        if (savedName) { nameInput.value = savedName; }
+
+        // ያንተን መልእክት ለይቶ ወደ ቀኝ የሚያደርግ ሲስተም
+        document.querySelectorAll('.msg').forEach(msg => {
+            if (msg.getAttribute('data-user') === savedName) {
+                msg.classList.add('me');
+            } else {
+                msg.classList.add('other');
+            }
+        });
+
         document.getElementById('chatForm').addEventListener('submit', function() {
             localStorage.setItem('chatUsername', nameInput.value);
         });
 
-        // ገጹ ሲከፈት ሁልጊዜ ወደ ታችኛው መልእክት እንዲወርድ
         const msgList = document.getElementById('messageList');
         msgList.scrollTop = msgList.scrollHeight;
     </script>
