@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register User - Admin</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 20px; }
+        .reg-container { max-width: 400px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #075e54; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { background-color: #075e54; color: white; padding: 12px; border: none; width: 100%; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        .back-link { display: block; text-align: center; margin-top: 15px; text-decoration: none; color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="reg-container">
+        <h2>Register New User</h2>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <p style="color: green; text-align: center;">{{ message }}</p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        <form action="/admin/register" method="POST">
+            <input type="text" name="username" placeholder="New Username" required>
+            <input type="password" name="password" placeholder="New Password" required>
+            <button type="submit">Create User</button>
+        </form>
+        <a href="/" class="back-link">Back to Chat</a>
+    </div>
+</body>
+</html>
