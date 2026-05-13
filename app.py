@@ -80,23 +80,28 @@ def send():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        # .lower() በመጨመር ተጠቃሚው የጻፈውን ወደ ትንሽ ሌተር ይቀይረዋል
+        username = request.form['username'].lower() 
         password = request.form['password']
+        
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+        # COLLATE NOCASE በመጨመር ዳታቤዙ ሌተሮቹን ሳይለይ እንዲፈልግ ያደርገዋል
+        user = conn.execute('SELECT * FROM users WHERE username = ? COLLATE NOCASE', (username,)).fetchone()
         conn.close()
+        
         if user and check_password_hash(user['password'], password):
-            session['username'] = user['username']
+            session['username'] = user['username'] # እዚህ ትክክለኛውን በካፒታል የተመዘገበ ስም ይይዛል
             session['role'] = user['role']
             return redirect(url_for('index'))
-        flash('Invalid login')
+        flash('Invalid username or password')
     return render_template('login.html')
-
 @app.route('/admin/register', methods=['GET', 'POST'])
 def register():
     if session.get('role') != 'admin': return "Unauthorized", 403
     if request.method == 'POST':
-        new_u, new_p = request.form['username'], request.form['password']
+        # ተጠቃሚው በካፒታል ቢጽፍም ሲመዘገብ ወደ ትንሽ ሌተር ይቀየራል
+        new_u = request.form['username'].lower() 
+        new_p = request.form['password']
         try:
             conn = get_db_connection()
             conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (new_u, generate_password_hash(new_p)))
