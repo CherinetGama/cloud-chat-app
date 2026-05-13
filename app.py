@@ -34,7 +34,7 @@ init_db()
 @app.route('/')
 def index():
     conn = get_db_connection()
-  messages = conn.execute('SELECT * FROM messages ORDER BY id ASC').fetchall()
+    messages = conn.execute('SELECT * FROM messages ORDER BY id ASC').fetchall()
     conn.close()
     return render_template('index.html', messages=messages)
 
