@@ -3,14 +3,11 @@
 <head>
     <title>Register - AMU Chat</title>
     <style>
-        body {
-            background: url("{{ url_for('static', filename='images.jpg') }}") no-repeat center center fixed;
-            background-size: cover;
-            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif;
-        }
-        .container { background: rgba(255,255,255,0.9); padding: 30px; border-radius: 10px; text-align: center; width: 300px; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
-        button { width: 95%; padding: 10px; background: #005a4e; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        body { background: url("{{ url_for('static', filename='images.jpg') }}") no-repeat center center fixed; background-size: cover; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        .container { background: rgba(255,255,255,0.9); padding: 30px; border-radius: 10px; text-align: center; width: 320px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+        button { width: 98%; padding: 12px; background: #005a4e; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        a { color: #005a4e; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -21,7 +18,7 @@
             <input type="password" name="password" placeholder="Choose Password" required>
             <button type="submit">Register</button>
         </form>
-        <p><a href="{{ url_for('login') }}" style="color:#005a4e; text-decoration:none;">ተመለስ</a></p>
+        <p style="font-size: 14px;"><a href="{{ url_for('login') }}">ወደ Login ተመለስ</a></p>
     </div>
 </body>
 </html>
