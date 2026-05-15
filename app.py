@@ -1,48 +1,27 @@
 import os
-import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+import sqlite3
 
 app = Flask(__name__)
-app.secret_key = 'your_msc_security_key'
+app.secret_key = 'amu_secret_key_2026' # ለደህንነት ሲባል የተቀየረ
 
-# 1. የዳታቤዝ ቦታን ማስተካከል (Render ላይ ስህተት እንዳይፈጠር)
-# ዳታቤዙ በ "instance" ፎልደር ውስጥ እንዲሆን ያደርጋል
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'chat.db')
+# ፋይሎች የሚቀመጡበትን ቦታ መወሰን
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'docx', 'txt'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
-    conn = get_db_connection()
-    # ተጠቃሚዎች ሰንጠረዥ
-    conn.execute('''CREATE TABLE IF NOT EXISTS users 
-                    (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                     username TEXT UNIQUE NOT NULL, 
-                     password TEXT NOT NULL,
-                     role TEXT DEFAULT 'user')''')
-    # መልእክቶች ሰንጠረዥ
-    conn.execute('''CREATE TABLE IF NOT EXISTS messages 
-                    (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                     name TEXT NOT NULL, 
-                     receiver TEXT NOT NULL, 
-                     content TEXT NOT NULL)''')
-    
-    # የ Admin አካውንት መኖሩን ማረጋገጥ
-    admin_exists = conn.execute('SELECT * FROM users WHERE username = ?', ('admin',)).fetchone()
-    if not admin_exists:
-        hashed_pw = generate_password_hash('admin123')
-        conn.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', 
-                     ('admin', hashed_pw, 'admin'))
-    
-    conn.commit()
-    conn.close()
-
-# አፑ ሲጀምር ዳታቤዙን ይፈጥራል
-init_db()
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -50,50 +29,23 @@ def index():
         return redirect(url_for('login'))
     
     conn = get_db_connection()
-    user = session['username']
+    # የህዝብ መልእክቶችን እና ለተጠቃሚው ብቻ የተላኩ የግል መልእክቶችን ማምጣት
+    messages = conn.execute('''
+        SELECT * FROM messages 
+        WHERE receiver = 'Public' 
+        OR receiver = ? 
+        OR name = ?
+    ''', (session['username'], session['username'])).fetchall()
     
-    # መልእክቶችን መፈለጊያ (Logic ተስተካክሏል)
-    messages = conn.execute('''SELECT * FROM messages 
-                               WHERE receiver = 'Public' 
-                               OR name = ? 
-                               OR receiver = ? 
-                               ORDER BY id ASC''', (user, user)).fetchall()
-    
-    # የሌሎች ተጠቃሚዎች ዝርዝር
-    users = conn.execute('SELECT username FROM users WHERE username != ?', (user,)).fetchall()
+    all_users = conn.execute('SELECT username FROM users WHERE username != ?', (session['username'],)).fetchall()
     conn.close()
-    
-    return render_template('index.html', 
-                           messages=messages, 
-                           current_user=user, 
-                           all_users=users,
-                           role=session.get('role'))
-
-@app.route('/send', methods=['POST'])
-def send():
-    if 'username' not in session: 
-        return redirect(url_for('login'))
-    
-    content = request.form.get('content')
-    receiver = request.form.get('receiver', 'Public')
-    
-    if content:
-        try:
-            conn = get_db_connection()
-            conn.execute('INSERT INTO messages (name, receiver, content) VALUES (?, ?, ?)', 
-                         (session['username'], receiver, content))
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            print(f"Error: {e}")
-            flash("Message could not be sent.")
-            
-    return redirect(url_for('index'))
+    return render_template('index.html', messages=messages, current_user=session['username'], role=session.get('role'), all_users=all_users)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username'].lower().strip()
+        # Case sensitivity ማስተካከያ - ወደ lowercase ይቀይረዋል
+        username = request.form['username'].lower() 
         password = request.form['password']
         
         conn = get_db_connection()
@@ -104,34 +56,49 @@ def login():
             session['username'] = user['username']
             session['role'] = user['role']
             return redirect(url_for('index'))
-        flash('Invalid username or password')
+        flash('ያልተሳካ ሙከራ! እባክዎ ስም ወይም የይለፍ ቃል ያረጋግጡ።')
     return render_template('login.html')
+
+@app.route('/send', methods=['POST'])
+def send():
+    if 'username' not in session: return redirect(url_for('login'))
+    
+    content = request.form.get('content')
+    receiver = request.form.get('receiver', 'Public')
+    file = request.files.get('file')
+    
+    file_url = None
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        file_url = filename
+        if not content: content = f"Sent a file: {filename}"
+
+    if content or file_url:
+        conn = get_db_connection()
+        conn.execute('INSERT INTO messages (name, content, receiver, file_url) VALUES (?, ?, ?, ?)',
+                     (session['username'], content, receiver, file_url))
+        conn.commit()
+        conn.close()
+    
+    return redirect(url_for('index'))
 
 @app.route('/admin/register', methods=['GET', 'POST'])
 def register():
-    if session.get('role') != 'admin': 
-        return "Unauthorized", 403
-        
+    if session.get('role') != 'admin': return "ፍቃድ የለዎትም!", 403
     if request.method == 'POST':
-        new_u = request.form['username'].lower().strip()
-        new_p = request.form['password']
+        username = request.form['username'].lower() # ሁልጊዜ በትንሽ ሌተር እንዲመዘገብ
+        password = generate_password_hash(request.form['password'])
+        role = request.form['role']
         
-        if not new_u or not new_p:
-            flash('Fill all fields!')
-            return redirect(url_for('register'))
-            
+        conn = get_db_connection()
         try:
-            conn = get_db_connection()
-            conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', 
-                         (new_u, generate_password_hash(new_p)))
+            conn.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', (username, password, role))
             conn.commit()
-            conn.close()
-            flash('Success!')
-        except sqlite3.IntegrityError:
-            flash('Username already exists!')
-        except Exception as e:
-            flash(f'Error: {e}')
-            
+            flash('ተጠቃሚው በትክክል ተመዝግቧል!')
+        except:
+            flash('ይህ ስም ቀድሞ ተይዟል!')
+        conn.close()
     return render_template('register.html')
 
 @app.route('/logout')
@@ -140,6 +107,4 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    # Render ላይ እንዲሰራ ፖርቱን ማስተካከል
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
