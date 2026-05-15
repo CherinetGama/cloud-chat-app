@@ -11,7 +11,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# የዳታቤዝ ሰንጠረዦች
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -23,7 +22,6 @@ class Message(db.Model):
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# ዳታቤዝ መፍጠር
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(username='admin').first():
@@ -48,7 +46,7 @@ def login():
             session['user_id'] = user.id
             session['username'] = user.username
             return redirect(url_for('home'))
-        flash('ያልተሳካ ሙከራ! እባክህ መረጃህን አረጋግጥ።')
+        flash('Invalid username or password')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -57,12 +55,11 @@ def register():
         username = request.form.get('username')
         password = request.form.get('password')
         if User.query.filter_by(username=username).first():
-            flash('ይህ ስም ቀድሞ ተይዟል!')
+            flash('Username already exists!')
         else:
             hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
             db.session.add(User(username=username, password=hashed_pw))
             db.session.commit()
-            flash('በተሳካ ሁኔታ ተመዝግበሃል! አሁን መግባት ትችላለህ።')
             return redirect(url_for('login'))
     return render_template('register.html')
 
