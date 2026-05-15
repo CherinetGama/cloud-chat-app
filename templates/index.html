@@ -1,108 +1,44 @@
 <!DOCTYPE html>
-<html lang="am">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMU Lab Chat</title>
+    <title>AMU Chat App</title>
     <style>
-        body {
-            background: url("{{ url_for('static', filename='images.jpg') }}") no-repeat center center fixed;
-            background-size: cover;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .chat-card {
-            background: rgba(255, 255, 255, 0.95);
-            width: 500px;
-            height: 600px;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        }
-        .header {
-            background-color: #005a4e;
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .messages-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f0f2f5;
-        }
-        .input-area {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #ddd;
-        }
-        textarea, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        .send-btn {
-            width: 100%;
-            padding: 10px;
-            background: #005a4e;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .logout-btn {
-            background: none;
-            border: 1px solid white;
-            color: white;
-            padding: 5px 10px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 14px;
-        }
+        body { background: url("{{ url_for('static', filename='images.jpg') }}") no-repeat center center fixed; background-size: cover; font-family: sans-serif; margin: 0; }
+        .header { background: #004d40; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .chat-box { width: 400px; height: 500px; background: rgba(255,255,255,0.9); margin: 20px auto; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
+        .messages { flex: 1; padding: 20px; overflow-y: auto; }
+        .input-area { padding: 15px; border-top: 1px solid #ddd; }
+        input[type="text"] { width: 80%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px; background: #004d40; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .admin-btn { background: #ff9800; color: white; padding: 8px; text-decoration: none; border-radius: 5px; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div class="chat-card">
-        <div class="header">
-            <div>
-                <strong>AMU Lab Technical Assistance</strong><br>
-                <small>Cloud Chat App</small>
-            </div>
-            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    <div class="header">
+        <div>
+            <strong>AMU Lab Technical Assistance</strong><br>
+            <small>Cloud Chat App</small>
         </div>
-        
-        <div class="messages-area">
+        <div>
+            {% if session['username'] == 'admin' %}
+                <a href="{{ url_for('register') }}" class="admin-btn">Register User</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" style="color:white; margin-left: 10px;">Logout</a>
+        </div>
+    </div>
+
+    <div class="chat-box">
+        <div class="messages">
             {% for msg in messages %}
-                <div style="margin-bottom: 15px;">
-                    <strong>{{ msg.name }}:</strong> {{ msg.content }}
-                    {% if msg.file_url %}
-                        <br><a href="{{ url_for('static', filename='uploads/' + msg.file_url) }}" target="_blank">View File</a>
-                    {% endif %}
-                </div>
+                <p><strong>{{ msg.sender }}:</strong> {{ msg.content }}</p>
             {% endfor %}
         </div>
-
-        <form class="input-area" action="/send" method="POST" enctype="multipart/form-data">
-            <select name="receiver">
-                <option value="Public">Everyone (Public Chat)</option>
-                {% for user in all_users %}
-                    <option value="{{ user.username }}">{{ user.username }}</option>
-                {% endfor %}
-            </select>
-            <textarea name="content" placeholder="Type your message..."></textarea>
-            <input type="file" name="file" style="margin-bottom: 10px;">
-            <button type="submit" class="send-btn">Send Message</button>
-        </form>
+        <div class="input-area">
+            <form action="{{ url_for('send') }}" method="POST">
+                <input type="text" name="content" placeholder="Type your message..." required>
+                <button type="submit">Send</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>
