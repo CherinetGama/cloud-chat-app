@@ -1,28 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="am">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Cloud Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AMU Chat</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #e5ddd5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 320px; text-align: center; }
-        h2 { color: #075e54; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { background-color: #075e54; color: white; padding: 12px; border: none; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .error { color: red; font-size: 14px; margin-bottom: 10px; }
+        body {
+            background: url("{{ url_for('static', filename='image_288f4a.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 350px;
+            text-align: center;
+        }
+        h2 { color: #005a4e; margin-bottom: 25px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #005a4e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover { background-color: #00423a; }
+        .flash { color: red; font-size: 14px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="login-box">
+    <div class="login-container">
         <h2>Login</h2>
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
-              <p class="error">{{ message }}</p>
+              <p class="flash">{{ message }}</p>
             {% endfor %}
           {% endif %}
         {% endwith %}
-        <form action="/login" method="POST">
+        <form method="POST">
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
