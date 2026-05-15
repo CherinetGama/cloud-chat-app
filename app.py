@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import sqlite3
 
 app = Flask(__name__)
-app.secret_key = 'amu_secret_key_2026' # ለደህንነት ሲባል የተቀየረ
+app.secret_key = 'amu_secret_key_2026'
 
 # ፋይሎች የሚቀመጡበትን ቦታ መወሰን
 UPLOAD_FOLDER = 'static/uploads'
@@ -20,6 +20,20 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+# ዳታቤዙን በራስ-ሰር የሚያስተካክል ፈንክሽን
+def init_db():
+    conn = get_db_connection()
+    # የ messages ቴብል መኖሩን እና file_url ኮለምን መኖሩን ማረጋገጥ
+    cursor = conn.cursor()
+    try:
+        # file_url የሚባል አዲስ ኮለምን መጨመር (ከሌለ)
+        cursor.execute('ALTER TABLE messages ADD COLUMN file_url TEXT')
+        conn.commit()
+    except sqlite3.OperationalError:
+        # ኮለምኑ ቀድሞ ካለ ምንም አያደርግም
+        pass
+    conn.close()
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -29,7 +43,6 @@ def index():
         return redirect(url_for('login'))
     
     conn = get_db_connection()
-    # የህዝብ መልእክቶችን እና ለተጠቃሚው ብቻ የተላኩ የግል መልእክቶችን ማምጣት
     messages = conn.execute('''
         SELECT * FROM messages 
         WHERE receiver = 'Public' 
@@ -44,7 +57,7 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Case sensitivity ማስተካከያ - ወደ lowercase ይቀይረዋል
+        # በትንሽ ፊደል እንዲገባ (admin)
         username = request.form['username'].lower() 
         password = request.form['password']
         
@@ -87,7 +100,7 @@ def send():
 def register():
     if session.get('role') != 'admin': return "ፍቃድ የለዎትም!", 403
     if request.method == 'POST':
-        username = request.form['username'].lower() # ሁልጊዜ በትንሽ ሌተር እንዲመዘገብ
+        username = request.form['username'].lower()
         password = generate_password_hash(request.form['password'])
         role = request.form['role']
         
@@ -107,4 +120,5 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
+    init_db() # አፑ ሲነሳ ዳታቤዙን በራሱ ያስተካክላል
     app.run(debug=True)
