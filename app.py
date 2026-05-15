@@ -46,7 +46,7 @@ def login():
             session['user_id'] = user.id
             session['username'] = user.username
             return redirect(url_for('home'))
-        flash('Invalid username or password')
+        flash('ያልተሳካ ሙከራ! እባክህ መረጃህን አረጋግጥ።')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -55,7 +55,7 @@ def register():
         username = request.form.get('username')
         password = request.form.get('password')
         if User.query.filter_by(username=username).first():
-            flash('Username already exists!')
+            flash('ይህ ስም ቀድሞ ተይዟል!')
         else:
             hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
             db.session.add(User(username=username, password=hashed_pw))
