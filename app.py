@@ -20,18 +20,50 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# ዳታቤዙን በራስ-ሰር የሚያስተካክል ፈንክሽን
+# ዳታቤዙን በራስ-ሰር የሚያስተካክል እና አድሚን የሚፈጥር ፈንክሽን
 def init_db():
     conn = get_db_connection()
-    # የ messages ቴብል መኖሩን እና file_url ኮለምን መኖሩን ማረጋገጥ
     cursor = conn.cursor()
+    
+    # 1. የ users ቴብል መኖሩን ማረጋገጥ
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            role TEXT NOT NULL
+        )
+    ''')
+    
+    # 2. የ messages ቴብል መኖሩን ማረጋገጥ
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            content TEXT,
+            receiver TEXT DEFAULT 'Public',
+            file_url TEXT
+        )
+    ''')
+    
+    # 3. file_url ኮለምን በ messages ቴብል ላይ መጨመሩን ማረጋገጥ
     try:
-        # file_url የሚባል አዲስ ኮለምን መጨመር (ከሌለ)
         cursor.execute('ALTER TABLE messages ADD COLUMN file_url TEXT')
-        conn.commit()
     except sqlite3.OperationalError:
-        # ኮለምኑ ቀድሞ ካለ ምንም አያደርግም
-        pass
+        pass # ቀድሞ ካለ ምንም አያደርግም
+
+    # 4. አድሚን ተጠቃሚ ከሌለ መፍጠር (admin / admin123)
+    try:
+        admin_exists = cursor.execute('SELECT * FROM users WHERE username = "admin"').fetchone()
+        if not admin_exists:
+            hashed_pw = generate_password_hash('admin123')
+            cursor.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', 
+                           ('admin', hashed_pw, 'admin'))
+            conn.commit()
+    except Exception as e:
+        print(f"Admin creation error: {e}")
+        
+    conn.commit()
     conn.close()
 
 def allowed_file(filename):
@@ -57,7 +89,6 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # በትንሽ ፊደል እንዲገባ (admin)
         username = request.form['username'].lower() 
         password = request.form['password']
         
