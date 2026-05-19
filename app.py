@@ -19,11 +19,13 @@ class User(db.Model):
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sender = db.Column(db.String(50), nullable=False)
+    receiver = db.Column(db.String(50), default='Everyone')
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 with app.app_context():
     db.create_all()
+    # አድሚን ከሌለ በታችኛው ኬዝ መፍጠር
     if not User.query.filter_by(username='admin').first():
         hashed_pw = generate_password_hash('admin123', method='pbkdf2:sha256')
         db.session.add(User(username='admin', password=hashed_pw))
@@ -33,39 +35,50 @@ with app.app_context():
 def home():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    messages = Message.query.order_by(Message.timestamp.asc()).all()
-    return render_template('index.html', messages=messages)
+    
+    current_user = session['username']
+    # ለሁሉም የተላኩ ወይም ለዚህ ሰው ብቻ የመጡ/የተላኩ መልዕክቶችን ማምጣት
+    messages = Message.query.filter(
+        (Message.receiver == 'Everyone') | 
+        (Message.receiver == current_user) | 
+        (Message.sender == current_user)
+    ).order_by(Message.timestamp.asc()).all()
+    
+    # ለሜሴጅ መምረጫ የሚሆኑ ተጠቃሚዎችን ማምጣት (ከራሱ ውጪ ያሉትን)
+    users = User.query.filter(User.username != current_user).all()
+    return render_template('index.html', messages=messages, users=users)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
+        username = request.form.get('username').strip().lower() # ወደ ትንሽ ሆሄ መቀየር
         password = request.form.get('password')
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
-            session['username'] = user.username
+            session['username'] = username
             return redirect(url_for('home'))
         flash('ያልተሳካ ሙከራ! እባክህ መረጃህን አረጋግጥ።')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    # አድሚን ካልገባ ወደ መግቢያ ገጽ ይመልሰዋል
     if 'username' not in session or session['username'] != 'admin':
         flash('ተጠቃሚ ለመመዝገብ መጀመሪያ እንደ አድሚን መግባት አለብህ!')
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        username = request.form.get('username')
+        username = request.form.get('username').strip().lower() # ስሙን ወደ Small letter ይቀይረዋል
         password = request.form.get('password')
-        if User.query.filter_by(username=username).first():
-            flash('ይህ ስም ቀድሞ ተይዟል!')
+        
+        user_exists = User.query.filter_by(username=username).first()
+        if user_exists:
+            flash('ይህ ስም ቀድሞ ተይዟል! (በካፒታልም ይሁን በስማል)')
         else:
             hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
             db.session.add(User(username=username, password=hashed_pw))
             db.session.commit()
-            flash(f'ተጠቃሚ {username} በተሳካ ሁኔታ ተመዝግቧል!')
+            flash(f'ተጠቃሚ "{username}" በተሳካ ሁኔታ ተመዝግቧል!') # የስኬት መልዕክት
             return redirect(url_for('home'))
     return render_template('register.html')
 
@@ -74,8 +87,9 @@ def send():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     content = request.form.get('content')
+    receiver = request.form.get('receiver', 'Everyone')
     if content:
-        new_msg = Message(sender=session['username'], content=content)
+        new_msg = Message(sender=session['username'], receiver=receiver, content=content)
         db.session.add(new_msg)
         db.session.commit()
     return redirect(url_for('home'))
