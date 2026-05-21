@@ -1,94 +1,241 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AMU Chat App</title>
+    <title>AMU Lab Technical Assistance - Chat</title>
     <style>
-        body { background: url("{{ url_for('static', filename='images.jpg') }}") no-repeat center center fixed; background-size: cover; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
-        .header { background: #004d40; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .success-flash { background: #4caf50; color: white; padding: 10px; text-align: center; font-weight: bold; }
-        .chat-container { width: 500px; height: 600px; background: rgba(240, 240, 240, 0.85); margin: 30px auto; border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 5px 25px rgba(0,0,0,0.3); }
-        .messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        
-        /* የቴሌግራም ስታይል የመልዕክት ሳጥኖች */
-        .message-row { display: flex; width: 100%; }
-        .msg-me { justify-content: flex-end; }  /* የኔ መልዕክት በቀኝ */
-        .msg-other { justify-content: flex-start; } /* የሌላው በግራ */
-        
-        .bubble { max-width: 70%; padding: 10px 15px; border-radius: 15px; font-size: 15px; line-height: 1.4; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .bubble-me { background: #e2ffc7; color: #303030; border-top-right-radius: 2px; }
-        .bubble-other { background: #ffffff; color: #303030; border-top-left-radius: 2px; }
-        
-        .sender-name { font-size: 11px; font-weight: bold; color: #004d40; margin-bottom: 3px; display: block; }
-        .msg-tag { font-size: 9px; color: #757575; display: block; text-align: right; margin-top: 3px; }
+        body { 
+            background: url("{{ url_for('static', filename='images.jpg') }}") no-repeat center center fixed; 
+            background-size: cover; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
 
-        .input-area { padding: 15px; background: #ffffff; border-top: 1px solid #ddd; }
-        .form-row { display: flex; gap: 10px; margin-bottom: 8px; }
-        .select-user { padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 100%; font-size: 14px; }
-        .text-row { display: flex; gap: 10px; }
-        input[type="text"] { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #ccc; outline: none; font-size: 14px; }
-        .send-btn { padding: 0 20px; background: #0088cc; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .admin-btn { background: #ff9800; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        /* የላይኛው የHeader ክፍል */
+        .top-nav {
+            background: rgba(0, 77, 64, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        /* ዋናው መሃል ላይ ያለው የቻት ሳጥን */
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chat-card {
+            width: 500px;
+            height: 650px;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* በቻት ሳጥኑ አናት ላይ ያለው ሎጎ እና ጽሑፍ */
+        .chat-header {
+            background: rgba(0, 77, 64, 0.05);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .chat-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #004d40;
+            margin-bottom: 10px;
+            background: white;
+        }
+        .chat-header h2 {
+            margin: 0;
+            color: #004d40;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* የመልዕክት መቀበያ ቦታ */
+        .messages-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(245, 245, 245, 0.4);
+        }
+
+        /* የቴሌግራም ስታይል መልዕክቶች */
+        .msg-row { display: flex; width: 100%; }
+        .msg-me { justify-content: flex-end; }
+        .msg-other { justify-content: flex-start; }
+        
+        .bubble {
+            max-width: 75%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 14.5px;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .bubble-me {
+            background: #dcf8c6;
+            color: #202020;
+            border-bottom-right-radius: 2px;
+        }
+        .bubble-other {
+            background: #ffffff;
+            color: #202020;
+            border-bottom-left-radius: 2px;
+        }
+
+        .sender-name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #00796b;
+            margin-bottom: 3px;
+            display: block;
+        }
+        .meta-info {
+            font-size: 9px;
+            color: #757575;
+            display: block;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* የጽሑፍ መጻፊያ ክፍል */
+        .input-panel {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+        .select-receiver {
+            width: 100%;
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            font-size: 13px;
+            outline: none;
+            color: #444;
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            outline: none;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        input[type="text"]:focus { border-color: #004d40; }
+        
+        .send-btn {
+            background: #0088cc;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .send-btn:hover { transform: scale(1.1); background: #007bb5; }
+
+        /* አዝራሮች (Buttons) */
+        .btn-reg { background: #ff9800; color: white; padding: 7px 15px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: bold; }
+        .btn-logout { color: #ffcdd2; text-decoration: none; font-size: 14px; margin-left: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header">
+
+    <div class="top-nav">
         <div>
-            <strong style="font-size: 18px;">AMU Lab Technical Assistance</strong><br>
-            <small>Logged in as: <b>{{ session['username'] }}</b></small>
+            <strong style="font-size: 16px;">AMU LAB Technical Assistance</strong><br>
+            <small style="opacity: 0.8;">User: <b>{{ session['username'] }}</b></small>
         </div>
         <div>
             {% if session['username'] == 'admin' %}
-                <a href="{{ url_for('register') }}" class="admin-btn">Register User</a>
+                <a href="{{ url_for('register') }}" class="btn-reg">Register User</a>
             {% endif %}
-            <a href="{{ url_for('logout') }}" style="color:white; margin-left: 15px; text-decoration: none; font-weight: bold;">Logout</a>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
         </div>
     </div>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for m in messages %}
-                <div class="success-flash">{{ m }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <div class="main-container">
+        <div class="chat-card">
+            <div class="chat-header">
+                <img src="{{ url_for('static', filename='image_27f9e4.png') }}" class="chat-logo" alt="Logo">
+                <h2>Online Chat Platform</h2>
+            </div>
 
-    <div class="chat-container">
-        <div class="messages">
-            {% for msg in messages %}
-                {% if msg.sender == session['username'] %}
-                    <div class="message-row msg-me">
-                        <div class="bubble bubble-me">
-                            {{ msg.content }}
-                            <span class="msg-tag">To: {{ msg.receiver }}</span>
+            <div class="messages-area">
+                {% for msg in messages %}
+                    {% if msg.sender == session['username'] %}
+                        <div class="msg-row msg-me">
+                            <div class="bubble bubble-me">
+                                {{ msg.content }}
+                                <span class="meta-info">To: {{ msg.receiver }}</span>
+                            </div>
                         </div>
-                    </div>
-                {% else %}
-                    <div class="message-row msg-other">
-                        <div class="bubble bubble-other">
-                            <span class="sender-name">@{{ msg.sender }}</span>
-                            {{ msg.content }}
+                    {% else %}
+                        <div class="msg-row msg-other">
+                            <div class="bubble bubble-other">
+                                <span class="sender-name">@{{ msg.sender }}</span>
+                                {{ msg.content }}
+                            </div>
                         </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-        
-        <div class="input-area">
-            <form action="{{ url_for('send') }}" method="POST">
-                <div class="form-row">
-                    <select name="receiver" class="select-user">
-                        <option value="Everyone">Everyone (Public Chat)</option>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="input-panel">
+                <form action="{{ url_for('send') }}" method="POST">
+                    <select name="receiver" class="select-receiver">
+                        <option value="Everyone">Everyone (Public Group)</option>
                         {% for u in users %}
-                            <option value="{{ u.username }}">Send to: {{ u.username }}</option>
+                            <option value="{{ u.username }}">Direct Message: {{ u.username }}</option>
                         {% endfor %}
                     </select>
-                </div>
-                <div class="text-row">
-                    <input type="text" name="content" placeholder="Type a message..." required autocomplete="off">
-                    <button type="submit" class="send-btn">Send</button>
-                </div>
-            </form>
+                    <div class="input-row">
+                        <input type="text" name="content" placeholder="Write a message..." required autocomplete="off">
+                        <button type="submit" class="send-btn">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+
 </body>
 </html>
