@@ -13,18 +13,49 @@
             height: 100vh;
         }
 
-        /* የላይኛው የHeader ክፍል */
+        /* የታደሰው የላይኛው መስመር (Top Bar) ዲዛይን */
         .top-nav {
-            background: rgba(0, 77, 64, 0.85);
+            background: rgba(0, 77, 64, 0.88);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             color: white;
-            padding: 10px 30px;
-            display: flex;
-            justify-content: space-between;
+            padding: 12px 30px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr; /* ለጽሑፉ በትክክል መሃል ላይ መሆን የሚረዳ ሌአውት */
             align-items: center;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 20px rgba(0,0,0,0.35);
             z-index: 1000;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* የግራ ክፍል - የተጠቃሚ ስም */
+        .nav-left {
+            justify-self: start;
+            font-size: 13px;
+        }
+        .nav-left b {
+            color: #ff9800; /* ብርቱካናማ ቀለም ለይዘቱ ውበት ይሰጣል */
+        }
+
+        /* መሃል ላይ በኩራት የሚቆመው ዋናው ጽሑፍ */
+        .nav-center {
+            justify-self: center;
+            text-align: center;
+        }
+        .nav-center h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            color: #ffffff;
+        }
+
+        /* የቀኝ ክፍል - የሊንኮች ማውጫ */
+        .nav-right {
+            justify-self: end;
+            display: flex;
+            align-items: center;
         }
 
         /* ዋናው መሃል ላይ ያለው የቻት ሳጥን */
@@ -38,37 +69,41 @@
 
         .chat-card {
             width: 500px;
-            height: 650px;
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            height: 620px;
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.4);
         }
 
-        /* በቻት ሳጥኑ አናት ላይ ያለው ሎጎ እና ጽሑፍ */
+        /* በቻት ሳጥኑ ውስጥ ያለው ሎጎ እና የውስጥ ጽሑፍ */
         .chat-header {
             background: rgba(0, 77, 64, 0.05);
-            padding: 20px;
+            padding: 15px;
             text-align: center;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
         .chat-logo {
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             border: 2px solid #004d40;
-            margin-bottom: 10px;
             background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         .chat-header h2 {
             margin: 0;
             color: #004d40;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -82,10 +117,10 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            background: rgba(245, 245, 245, 0.4);
+            background: rgba(245, 245, 245, 0.3);
         }
 
-        /* የቴሌግራም ስታይል መልዕክቶች */
+        /* የመልዕክት አቀማመጥ */
         .msg-row { display: flex; width: 100%; }
         .msg-me { justify-content: flex-end; }
         .msg-other { justify-content: flex-start; }
@@ -96,12 +131,11 @@
             border-radius: 18px;
             font-size: 14.5px;
             line-height: 1.5;
-            position: relative;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .bubble-me {
-            background: #dcf8c6;
-            color: #202020;
+            background: #e1f5fe;
+            color: #1a237e;
             border-bottom-right-radius: 2px;
         }
         .bubble-other {
@@ -152,12 +186,11 @@
             border: 1px solid #ddd;
             outline: none;
             font-size: 14px;
-            transition: border 0.3s;
         }
         input[type="text"]:focus { border-color: #004d40; }
         
         .send-btn {
-            background: #0088cc;
+            background: #004d40;
             color: white;
             border: none;
             width: 45px;
@@ -169,21 +202,27 @@
             align-items: center;
             transition: transform 0.2s;
         }
-        .send-btn:hover { transform: scale(1.1); background: #007bb5; }
+        .send-btn:hover { transform: scale(1.05); background: #00796b; }
 
         /* አዝራሮች (Buttons) */
-        .btn-reg { background: #ff9800; color: white; padding: 7px 15px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: bold; }
-        .btn-logout { color: #ffcdd2; text-decoration: none; font-size: 14px; margin-left: 15px; font-weight: bold; }
+        .btn-reg { background: #ff9800; color: white; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: bold; box-shadow: 0 2px 6px rgba(255,152,0,0.3); }
+        .btn-reg:hover { background: #e65100; }
+        .btn-logout { color: #ffcdd2; text-decoration: none; font-size: 13.5px; margin-left: 15px; font-weight: bold; transition: color 0.2s; }
+        .btn-logout:hover { color: #ffffff; }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <div>
-            <strong style="font-size: 16px;">AMU LAB Technical Assistance</strong><br>
-            <small style="opacity: 0.8;">User: <b>{{ session['username'] }}</b></small>
+        <div class="nav-left">
+            <span>User: <b>{{ session['username'] }}</b></span>
         </div>
-        <div>
+        
+        <div class="nav-center">
+            <h1>AMU LAB Technical Assistance</h1>
+        </div>
+        
+        <div class="nav-right">
             {% if session['username'] == 'admin' %}
                 <a href="{{ url_for('register') }}" class="btn-reg">Register User</a>
             {% endif %}
@@ -221,15 +260,15 @@
             <div class="input-panel">
                 <form action="{{ url_for('send') }}" method="POST">
                     <select name="receiver" class="select-receiver">
-                        <option value="Everyone">Everyone (Public Group)</option>
+                        <option value="Everyone">Everyone (Public Chat)</option>
                         {% for u in users %}
                             <option value="{{ u.username }}">Direct Message: {{ u.username }}</option>
                         {% endfor %}
                     </select>
                     <div class="input-row">
-                        <input type="text" name="content" placeholder="Write a message..." required autocomplete="off">
+                        <input type="text" name="content" placeholder="Type your message..." required autocomplete="off">
                         <button type="submit" class="send-btn">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                         </button>
                     </div>
                 </form>
