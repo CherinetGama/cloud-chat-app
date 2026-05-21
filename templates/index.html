@@ -13,7 +13,6 @@
             height: 100vh;
         }
 
-        /* የታደሰው የላይኛው መስመር (Top Bar) ዲዛይን */
         .top-nav {
             background: rgba(0, 77, 64, 0.88);
             backdrop-filter: blur(10px);
@@ -21,52 +20,20 @@
             color: white;
             padding: 12px 30px;
             display: grid;
-            grid-template-columns: 1fr auto 1fr; /* ለጽሑፉ በትክክል መሃል ላይ መሆን የሚረዳ ሌአውት */
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
             box-shadow: 0 3px 20px rgba(0,0,0,0.35);
             z-index: 1000;
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* የግራ ክፍል - የተጠቃሚ ስም */
-        .nav-left {
-            justify-self: start;
-            font-size: 13px;
-        }
-        .nav-left b {
-            color: #ff9800; /* ብርቱካናማ ቀለም ለይዘቱ ውበት ይሰጣል */
-        }
+        .nav-left { justify-self: start; font-size: 13px; }
+        .nav-left b { color: #ff9800; }
+        .nav-center { justify-self: center; text-align: center; }
+        .nav-center h1 { margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .nav-right { justify-self: end; display: flex; align-items: center; }
 
-        /* መሃል ላይ በኩራት የሚቆመው ዋናው ጽሑፍ */
-        .nav-center {
-            justify-self: center;
-            text-align: center;
-        }
-        .nav-center h1 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            color: #ffffff;
-        }
-
-        /* የቀኝ ክፍል - የሊንኮች ማውጫ */
-        .nav-right {
-            justify-self: end;
-            display: flex;
-            align-items: center;
-        }
-
-        /* ዋናው መሃል ላይ ያለው የቻት ሳጥን */
-        .main-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
+        .main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .chat-card {
             width: 500px;
             height: 620px;
@@ -81,7 +48,6 @@
             border: 1px solid rgba(255,255,255,0.4);
         }
 
-        /* በቻት ሳጥኑ ውስጥ ያለው ሎጎ እና የውስጥ ጽሑፍ */
         .chat-header {
             background: rgba(0, 77, 64, 0.05);
             padding: 15px;
@@ -92,136 +58,62 @@
             align-items: center;
             gap: 8px;
         }
-        .chat-logo {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            border: 2px solid #004d40;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        .chat-header h2 {
-            margin: 0;
-            color: #004d40;
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .chat-logo { width: 55px; height: 55px; border-radius: 50%; border: 2px solid #004d40; background: white; }
+        .chat-header h2 { margin: 0; color: #004d40; font-size: 16px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* የመልዕክት መቀበያ ቦታ */
-        .messages-area {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: rgba(245, 245, 245, 0.3);
-        }
-
-        /* የመልዕክት አቀማመጥ */
+        .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: rgba(245, 245, 245, 0.3); }
         .msg-row { display: flex; width: 100%; }
         .msg-me { justify-content: flex-end; }
         .msg-other { justify-content: flex-start; }
         
-        .bubble {
-            max-width: 75%;
-            padding: 10px 15px;
-            border-radius: 18px;
-            font-size: 14.5px;
-            line-height: 1.5;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .bubble-me {
-            background: #e1f5fe;
-            color: #1a237e;
-            border-bottom-right-radius: 2px;
-        }
-        .bubble-other {
-            background: #ffffff;
-            color: #202020;
-            border-bottom-left-radius: 2px;
-        }
+        .bubble { max-width: 75%; padding: 10px 15px; border-radius: 18px; font-size: 14.5px; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .bubble-me { background: #e1f5fe; color: #1a237e; border-bottom-right-radius: 2px; }
+        .bubble-other { background: #ffffff; color: #202020; border-bottom-left-radius: 2px; }
 
-        .sender-name {
-            font-size: 11px;
-            font-weight: bold;
-            color: #00796b;
-            margin-bottom: 3px;
-            display: block;
-        }
-        .meta-info {
-            font-size: 9px;
-            color: #757575;
-            display: block;
-            text-align: right;
-            margin-top: 4px;
-        }
-
-        /* የጽሑፍ መጻፊያ ክፍል */
-        .input-panel {
-            padding: 15px 20px;
-            background: white;
-            border-top: 1px solid #eee;
-        }
-        .select-receiver {
-            width: 100%;
-            padding: 8px;
+        /* የተላከው ፎቶ በቻት ውስጥ የሚያሳይበት ዲዛይን */
+        .chat-image {
+            max-width: 100%;
+            max-height: 200px;
             border-radius: 10px;
-            border: 1px solid #ddd;
-            margin-bottom: 10px;
-            font-size: 13px;
-            outline: none;
-            color: #444;
+            margin-top: 5px;
+            display: block;
+            object-fit: cover;
         }
-        .input-row {
-            display: flex;
-            gap: 10px;
-        }
-        input[type="text"] {
-            flex: 1;
-            padding: 12px 18px;
-            border-radius: 25px;
-            border: 1px solid #ddd;
-            outline: none;
-            font-size: 14px;
-        }
-        input[type="text"]:focus { border-color: #004d40; }
-        
-        .send-btn {
-            background: #004d40;
-            color: white;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.2s;
-        }
-        .send-btn:hover { transform: scale(1.05); background: #00796b; }
 
-        /* አዝራሮች (Buttons) */
-        .btn-reg { background: #ff9800; color: white; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: bold; box-shadow: 0 2px 6px rgba(255,152,0,0.3); }
-        .btn-reg:hover { background: #e65100; }
-        .btn-logout { color: #ffcdd2; text-decoration: none; font-size: 13.5px; margin-left: 15px; font-weight: bold; transition: color 0.2s; }
-        .btn-logout:hover { color: #ffffff; }
+        .sender-name { font-size: 11px; font-weight: bold; color: #00796b; margin-bottom: 3px; display: block; }
+        .meta-info { font-size: 9px; color: #757575; display: block; text-align: right; margin-top: 4px; }
+
+        .input-panel { padding: 15px 20px; background: white; border-top: 1px solid #eee; }
+        .select-receiver { width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px; font-size: 13px; outline: none; }
+        
+        .input-row { display: flex; align-items: center; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid #ddd; outline: none; font-size: 14px; }
+        
+        /* የወረቀት ክሊፕ (Attachment) ምልክት ቁልፍ */
+        .file-label {
+            cursor: pointer;
+            color: #555;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .file-label:hover { background: #eee; color: #004d40; }
+        input[type="file"] { display: none; } /* ዋናውን አስቀያሚ ቁልፍ መደበቅ */
+
+        .send-btn { background: #004d40; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .send-btn:hover { background: #00796b; }
+        .btn-reg { background: #ff9800; color: white; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: bold; }
+        .btn-logout { color: #ffcdd2; text-decoration: none; font-size: 13.5px; margin-left: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <div class="nav-left">
-            <span>User: <b>{{ session['username'] }}</b></span>
-        </div>
-        
-        <div class="nav-center">
-            <h1>AMU LAB Technical Assistance</h1>
-        </div>
-        
+        <div class="nav-left"><span>User: <b>{{ session['username'] }}</b></span></div>
+        <div class="nav-center"><h1>AMU LAB Technical Assistance</h1></div>
         <div class="nav-right">
             {% if session['username'] == 'admin' %}
                 <a href="{{ url_for('register') }}" class="btn-reg">Register User</a>
@@ -243,6 +135,9 @@
                         <div class="msg-row msg-me">
                             <div class="bubble bubble-me">
                                 {{ msg.content }}
+                                {% if msg.image_path %}
+                                    <img src="{{ url_for('static', filename=msg.image_path) }}" class="chat-image" alt="Uploaded Image">
+                                {% endif %}
                                 <span class="meta-info">To: {{ msg.receiver }}</span>
                             </div>
                         </div>
@@ -251,6 +146,9 @@
                             <div class="bubble bubble-other">
                                 <span class="sender-name">@{{ msg.sender }}</span>
                                 {{ msg.content }}
+                                {% if msg.image_path %}
+                                    <img src="{{ url_for('static', filename=msg.image_path) }}" class="chat-image" alt="Uploaded Image">
+                                {% endif %}
                             </div>
                         </div>
                     {% endif %}
@@ -258,7 +156,7 @@
             </div>
 
             <div class="input-panel">
-                <form action="{{ url_for('send') }}" method="POST">
+                <form action="{{ url_for('send') }}" method="POST" enctype="multipart/form-data">
                     <select name="receiver" class="select-receiver">
                         <option value="Everyone">Everyone (Public Chat)</option>
                         {% for u in users %}
@@ -266,7 +164,13 @@
                         {% endfor %}
                     </select>
                     <div class="input-row">
-                        <input type="text" name="content" placeholder="Type your message..." required autocomplete="off">
+                        <label class="file-label" title="Attach Photo">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                            <input type="file" name="file" accept="image/*">
+                        </label>
+                        
+                        <input type="text" name="content" placeholder="Type your message..." autocomplete="off">
+                        
                         <button type="submit" class="send-btn">
                             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                         </button>
