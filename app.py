@@ -5,25 +5,24 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = "amu_lab_secret_key_123" # ሚስጥራዊ ቁልፍ
+app.secret_key = "amu_lab_secret_key_123" 
 
 # SQLite ዳታቤዝ ማዋቀር
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///chat.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# የፋይል ወይም ፎቶ መላኪያ ማዋቀር
+# የፋይል ማስቀመጫ ማዋቀር
 UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+# እዚህ ጋ ፎቶዎችን፣ ዎርድ፣ ፓወርፖይንት እና ኤክሴል ፋይሎችን እንዲቀበል ፈቅደናል
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# የፎቶዎች ማስቀመጫ ፎልደር ከሌለ እንዲፈጠር ማድረግ
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 db = SQLAlchemy(app)
 
-# --- የዳታቤዝ ሞዴሎች (Database Models) ---
-
+# --- የዳታቤዝ ሞዴሎች ---
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -34,13 +33,11 @@ class Message(db.Model):
     sender = db.Column(db.String(50), nullable=False)
     receiver = db.Column(db.String(50), nullable=False)
     content = db.Column(db.String(500), nullable=True)
-    image_path = db.Column(db.String(200), nullable=True)
+    image_path = db.Column(db.String(200), nullable=True) # ይህ አሁን ለማንኛውም ፋይል ያገለግላል
 
-# ፋይሉ የሚፈቀድ የፎቶ አይነት መሆኑን መፈተሻ
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# ዳታቤዙን መጀመሪያ ላይ መፍጠር
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(username='admin').first():
@@ -49,9 +46,7 @@ with app.app_context():
         db.session.add(admin_user)
         db.session.commit()
 
-# --- የፍላስክ መንገዶች (Routes) ---
-
-# 1. ዋናው የቻት ገጽ (Index)
+# --- Routes ---
 @app.route('/')
 def index():
     if 'username' not in session:
@@ -68,7 +63,6 @@ def index():
     
     return render_template('index.html', users=users, messages=messages)
 
-# 2. መልዕክት እና ፎቶ መላኪያ (Send Message & Photo)
 @app.route('/send', methods=['POST'])
 def send():
     if 'username' not in session:
@@ -94,11 +88,10 @@ def send():
         
     return redirect(url_for('index'))
 
-# 3. መግቢያ ገጽ (Login)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username').strip().lower() # ወደ small letter ይቀይራል
+        username = request.form.get('username').strip().lower()
         password = request.form.get('password')
         
         user = User.query.filter_by(username=username).first()
@@ -111,14 +104,13 @@ def login():
             
     return render_template('login.html')
 
-# 4. አዲስ ተጠቃሚ መመዝገቢያ (Register - ለአድሚን ብቻ)
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if 'username' not in session or session['username'] != 'admin':
         return "ይህንን ገጽ ለመጠቀም የአድሚን ፈቃድ ያስፈልጋል!", 403
         
     if request.method == 'POST':
-        username = request.form.get('username').strip().lower() # በትንሽ ሆሄ እንዲመዘገብ
+        username = request.form.get('username').strip().lower()
         password = request.form.get('password')
         
         if User.query.filter_by(username=username).first():
@@ -130,13 +122,11 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         
-        # እዚህ ጋ መልዕክቱን 'flash' እናደርጋለን
         flash(f'ተጠቃሚ "{username}" በተሳካ ሁኔታ ተመዝግቧል!')
-        return redirect(url_for('index')) # ወደ ዋናው ገጽ ይመልሰዋል
+        return redirect(url_for('index'))
         
     return render_template('register.html')
 
-# 5. መውጫ (Logout)
 @app.route('/logout')
 def logout():
     session.pop('username', None)
