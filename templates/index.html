@@ -24,13 +24,12 @@
             align-items: center;
             box-shadow: 0 3px 20px rgba(0,0,0,0.35);
             z-index: 1000;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         .nav-left { justify-self: start; font-size: 13px; }
         .nav-left b { color: #ff9800; }
         .nav-center { justify-self: center; text-align: center; }
-        .nav-center h1 { margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .nav-center h1 { margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 1px; }
         .nav-right { justify-self: end; display: flex; align-items: center; }
 
         .main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
@@ -39,13 +38,11 @@
             height: 620px;
             background: rgba(255, 255, 255, 0.90);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             box-shadow: 0 15px 40px rgba(0,0,0,0.35);
-            border: 1px solid rgba(255,255,255,0.4);
         }
 
         .chat-header {
@@ -59,7 +56,7 @@
             gap: 8px;
         }
         .chat-logo { width: 55px; height: 55px; border-radius: 50%; border: 2px solid #004d40; background: white; }
-        .chat-header h2 { margin: 0; color: #004d40; font-size: 16px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .chat-header h2 { margin: 0; color: #004d40; font-size: 16px; font-weight: bold; text-transform: uppercase; }
 
         .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: rgba(245, 245, 245, 0.3); }
         .msg-row { display: flex; width: 100%; }
@@ -70,15 +67,24 @@
         .bubble-me { background: #e1f5fe; color: #1a237e; border-bottom-right-radius: 2px; }
         .bubble-other { background: #ffffff; color: #202020; border-bottom-left-radius: 2px; }
 
-        /* የተላከው ፎቶ በቻት ውስጥ የሚያሳይበት ዲዛይን */
-        .chat-image {
-            max-width: 100%;
-            max-height: 200px;
+        .chat-image { max-width: 100%; max-height: 200px; border-radius: 10px; margin-top: 5px; display: block; object-fit: cover; }
+        
+        /* የፋይል ማውረጃ ሊንክ ዲዛይን */
+        .file-download-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 77, 64, 0.1);
+            color: #004d40;
+            padding: 8px 12px;
             border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 13px;
             margin-top: 5px;
-            display: block;
-            object-fit: cover;
+            border: 1px dashed #004d40;
         }
+        .file-download-link:hover { background: rgba(0, 77, 64, 0.2); }
 
         .sender-name { font-size: 11px; font-weight: bold; color: #00796b; margin-bottom: 3px; display: block; }
         .meta-info { font-size: 9px; color: #757575; display: block; text-align: right; margin-top: 4px; }
@@ -89,24 +95,14 @@
         .input-row { display: flex; align-items: center; gap: 10px; }
         input[type="text"] { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid #ddd; outline: none; font-size: 14px; }
         
-        /* የወረቀት ክሊፕ (Attachment) ምልክት ቁልፍ */
-        .file-label {
-            cursor: pointer;
-            color: #555;
-            padding: 8px;
-            border-radius: 50%;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .file-label { cursor: pointer; color: #555; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .file-label:hover { background: #eee; color: #004d40; }
-        input[type="file"] { display: none; } /* ዋናውን አስቀያሚ ቁልፍ መደበቅ */
+        input[type="file"] { display: none; } 
 
         .send-btn { background: #004d40; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .send-btn:hover { background: #00796b; }
         .btn-reg { background: #ff9800; color: white; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: bold; }
         .btn-logout { color: #ffcdd2; text-decoration: none; font-size: 13.5px; margin-left: 15px; font-weight: bold; }
+        .success-flash { background: #4caf50; color: white; padding: 10px; text-align: center; font-weight: bold; position: absolute; width: 100%; top: 60px; z-index: 999; }
     </style>
 </head>
 <body>
@@ -122,6 +118,14 @@
         </div>
     </div>
 
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for m in messages %}
+                <div class="success-flash">{{ m }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <div class="main-container">
         <div class="chat-card">
             <div class="chat-header">
@@ -131,27 +135,32 @@
 
             <div class="messages-area">
                 {% for msg in messages %}
-                    {% if msg.sender == session['username'] %}
-                        <div class="msg-row msg-me">
-                            <div class="bubble bubble-me">
-                                {{ msg.content }}
-                                {% if msg.image_path %}
-                                    <img src="{{ url_for('static', filename=msg.image_path) }}" class="chat-image" alt="Uploaded Image">
-                                {% endif %}
-                                <span class="meta-info">To: {{ msg.receiver }}</span>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="msg-row msg-other">
-                            <div class="bubble bubble-other">
+                    <div class="msg-row {% if msg.sender == session['username'] %}msg-me{% else %}msg-other{% endif %}">
+                        <div class="bubble {% if msg.sender == session['username'] %}bubble-me{% else %}bubble-other{% endif %}">
+                            {% if msg.sender != session['username'] %}
                                 <span class="sender-name">@{{ msg.sender }}</span>
-                                {{ msg.content }}
-                                {% if msg.image_path %}
-                                    <img src="{{ url_for('static', filename=msg.image_path) }}" class="chat-image" alt="Uploaded Image">
+                            {% endif %}
+                            
+                            {% if msg.content %}
+                                <div>{{ msg.content }}</div>
+                            {% endif %}
+                            
+                            {% if msg.image_path %}
+                                {% if msg.image_path.endswith('.jpg') or msg.image_path.endswith('.jpeg') or msg.image_path.endswith('.png') or msg.image_path.endswith('.gif') %}
+                                    <img src="{{ url_for('static', filename=msg.image_path) }}" class="chat-image" alt="Image">
+                                {% else %}
+                                    <a href="{{ url_for('static', filename=msg.image_path) }}" class="file-download-link" download>
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 18 15 15"></polyline></svg>
+                                        <span>Download Document</span>
+                                    </a>
                                 {% endif %}
-                            </div>
+                            {% endif %}
+                            
+                            {% if msg.sender == session['username'] %}
+                                <span class="meta-info">To: {{ msg.receiver }}</span>
+                            {% endif %}
                         </div>
-                    {% endif %}
+                    </div>
                 {% endfor %}
             </div>
 
@@ -164,12 +173,12 @@
                         {% endfor %}
                     </select>
                     <div class="input-row">
-                        <label class="file-label" title="Attach Photo">
+                        <label class="file-label" title="Attach File (Image, Word, PPT, Excel)">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                            <input type="file" name="file" accept="image/*">
+                            <input type="file" name="file" accept=".png, .jpg, .jpeg, .gif, .docx, .doc, .pptx, .ppt, .xlsx, .xls, .pdf">
                         </label>
                         
-                        <input type="text" name="content" placeholder="Type your message..." autocomplete="off">
+                        <input type="text" name="content" placeholder="Type your message or attach a file..." autocomplete="off">
                         
                         <button type="submit" class="send-btn">
                             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
