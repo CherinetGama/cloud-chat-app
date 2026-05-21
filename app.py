@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = "amu_lab_secret_key_123" 
 
 # --- የ RENDER POSTGRESQL ዳታቤዝ ማዋቀር ---
-# የሰጠኸውን የውስጥ ሊንክ ወደ ውጫዊ (External) ግንኙነት ቀይረነዋል (-a ከነበረው ወደ -a.oregon-postgres...)
+# ያወጣኸው አዲሱ ቋሚ የዳታቤዝ ሊንክ እዚህ ተዋቅሯል
 RENDER_DB_URL = "postgresql://cherinet:jOvE9ApqiCKE2D5DJO4y9h1FYp46TqDw@dpg-d87cltsm0tmc739p7290-a.oregon-postgres.render.com/chatdb_r1ou"
 
 if RENDER_DB_URL.startswith("postgres://"):
@@ -17,7 +17,7 @@ if RENDER_DB_URL.startswith("postgres://"):
 app.config['SQLALCHEMY_DATABASE_URI'] = RENDER_DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# የፋይል ማስቀመጫ ማዋቀር
+# የፋይል ማስቀመጫ ማዋቀር (ምስሎች፣ ዎርድ፣ ኤክሴል እና ፒፒቲ ፋይሎች)
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -43,7 +43,7 @@ class Message(db.Model):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# ዳታቤዙን በራስ-ሰር መፍጠር
+# አዲሱ ዳታቤዝ ሲነሳ ሰንጠረዦቹን እና አድሚንን በራስ-ሰር ይፈጥራል
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(username='admin').first():
