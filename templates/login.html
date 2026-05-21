@@ -15,30 +15,34 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        /* አናት ላይ ያለው የዩኒቨርሲቲው ስም ማሳያ ሳጥን */
+        /* አናት ላይ ያለው የዩኒቨርሲቲው ስም ማሳያ ሳጥን - አሁን የጀርባው ምስል በከፊል ይታያል (Transparent) */
         .app-title-container {
             text-align: center;
             margin-bottom: 20px;
-            background: rgba(0, 77, 64, 0.93); /* ጥቁር አረንጓዴ */
-            padding: 15px 35px;
+            /* rgba ላይ የመጨረሻዋ 0.72 ሳጥኑ በጥቂቱ ግልጽ ሆኖ የጀርባው ምስል እንዲታይ ታደርጋለች */
+            background: rgba(0, 77, 64, 0.72); 
+            backdrop-filter: blur(6px); /* በሳጥኑ ውስጥ የሚያልፈው ምስል ላይ ያማረ የብዥታ ጥላ ይሰጣል */
+            -webkit-backdrop-filter: blur(6px);
+            padding: 18px 40px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             border-bottom: 4px solid #ff9800; /* ወርቃማ መስመር */
             max-width: 460px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* ክብ ቅርጽ ያለው የሎጎ ማሳያ */
         .logo-img {
-            width: 65px;
-            height: 65px;
+            width: 70px;
+            height: 70px;
             object-fit: cover;
             border-radius: 50%;
             border: 2px solid #ffffff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             background: #ffffff;
         }
 
@@ -48,7 +52,7 @@
             font-size: 24px;
             font-weight: bold;
             letter-spacing: 0.5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
         }
         .app-title-container p {
             color: #e0f2f1;
@@ -57,16 +61,20 @@
             text-transform: uppercase;
             letter-spacing: 1.2px;
             font-weight: 500;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
         }
 
-        /* የፎርሙ ሳጥን ዲዛይን */
+        /* የፎርሙ ሳጥን ዲዛይን - እሱም የጀርባው ምስል በጥቂቱ እንዲታይ ተደርጓል */
         .container { 
-            background: rgba(255, 255, 255, 0.93); 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             padding: 35px 30px; 
             border-radius: 18px; 
             text-align: center; 
             width: 340px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            box-shadow: 0 12px 35px rgba(0,0,0,0.35); 
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .container h2 {
             color: #004d40;
@@ -89,7 +97,7 @@
         }
         input:focus {
             border: 2px solid #004d40;
-            box-shadow: 0 0 5px rgba(0, 77, 64, 0.3);
+            box-shadow: 0 0 8px rgba(0, 77, 64, 0.35);
         }
         button { 
             width: 98%; 
@@ -102,12 +110,13 @@
             font-weight: bold; 
             font-size: 16px;
             margin-top: 15px;
-            box-shadow: 0 4px 12px rgba(0,77,64,0.3);
+            box-shadow: 0 4px 15px rgba(0,77,64,0.4);
             transition: all 0.3s;
         }
         button:hover {
             background: #00796b;
             transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0,77,64,0.5);
         }
         .error-msg {
             color: #d32f2f;
