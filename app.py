@@ -8,8 +8,8 @@ app = Flask(__name__)
 app.secret_key = "amu_lab_secret_key_123" 
 
 # --- የ RENDER POSTGRESQL ዳታቤዝ ማዋቀር ---
-# ያወጣኸው አዲሱ ቋሚ የዳታቤዝ ሊንክ እዚህ ተዋቅሯል
-RENDER_DB_URL = "postgresql://cherinet:jOvE9ApqiCKE2D5DJO4y9h1FYp46TqDw@dpg-d87cltsm0tmc739p7290-a.oregon-postgres.render.com/chatdb_r1ou"
+# ይፋዊው (External) የዳታቤዝ ሊንክ ከደህንነት ማጣሪያ (?sslmode=require) ጋር እዚህ ተዋቅሯል
+RENDER_DB_URL = "postgresql://cherinet:jOvE9ApqiCKE2D5DJO4y9h1FYp46TqDw@dpg-d87cltsm0tmc739p7290-a.oregon-postgres.render.com/chatdb_r1ou?sslmode=require"
 
 if RENDER_DB_URL.startswith("postgres://"):
     RENDER_DB_URL = RENDER_DB_URL.replace("postgres://", "postgresql://", 1)
