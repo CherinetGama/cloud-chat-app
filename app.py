@@ -6,24 +6,14 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "amu_lab_secret_key_123" 
-# --- የ RENDER POSTGRESQL ዳታቤዝ ማዋቀር ---
-import os
 
-RENDER_DB_URL = os.environ.get("DATABASE_URL")
-
-if RENDER_DB_URL:
-    # ሊንኩ በትላልቅ ፊደላት ቢመጣ ወደ ትናንሽ ፊደላት ይቀይረዋል
-    RENDER_DB_URL = RENDER_DB_URL.lower()
-    
-    if RENDER_DB_URL.startswith("postgres://"):
-        RENDER_DB_URL = RENDER_DB_URL.replace("postgres://", "postgresql://", 1)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = RENDER_DB_URL
+# SQLite ዳታቤዝ ማዋቀር
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///chat.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
-# የፋይል ማስቀመጫ ማዋቀር (ምስሎች፣ ዎርድ፣ ኤክሴል እና ፒፒቲ ፋይሎች)
+# የፋይል ማስቀመጫ ማዋቀር
 UPLOAD_FOLDER = 'static/uploads'
+# እዚህ ጋ ፎቶዎችን፣ ዎርድ፣ ፓወርፖይንት እና ኤክሴል ፋይሎችን እንዲቀበል ፈቅደናል
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -43,12 +33,11 @@ class Message(db.Model):
     sender = db.Column(db.String(50), nullable=False)
     receiver = db.Column(db.String(50), nullable=False)
     content = db.Column(db.String(500), nullable=True)
-    image_path = db.Column(db.String(200), nullable=True)
+    image_path = db.Column(db.String(200), nullable=True) # ይህ አሁን ለማንኛውም ፋይል ያገለግላል
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# አዲሱ ዳታቤዝ ሲነሳ ሰንጠረዦቹን እና አድሚንን በራስ-ሰር ይፈጥራል
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(username='admin').first():
@@ -110,7 +99,7 @@ def login():
             session['username'] = username
             return redirect(url_for('index'))
         else:
-            flash("An error occurred! Please check your information and try again.")
+            flash("ያልተሳካ ሙከራ! እባክዎ መረጃውን ያረጋግጡ።")
             return redirect(url_for('login'))
             
     return render_template('login.html')
@@ -118,14 +107,14 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if 'username' not in session or session['username'] != 'admin':
-        return "Administrator permission is required to use this page.!", 403
+        return "ይህንን ገጽ ለመጠቀም የአድሚን ፈቃድ ያስፈልጋል!", 403
         
     if request.method == 'POST':
         username = request.form.get('username').strip().lower()
         password = request.form.get('password')
         
         if User.query.filter_by(username=username).first():
-            flash("This username is already registered.!")
+            flash("ይህ ተጠቃሚ ስም አስቀድሞ ተመዝግቧል!")
             return redirect(url_for('register'))
             
         hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
@@ -133,7 +122,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         
-        flash(f'User "{username}" Successfully registered!')
+        flash(f'ተጠቃሚ "{username}" በተሳካ ሁኔታ ተመዝግቧል!')
         return redirect(url_for('index'))
         
     return render_template('register.html')
