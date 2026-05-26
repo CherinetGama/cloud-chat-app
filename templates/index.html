@@ -1,138 +1,193 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMU LAB Chat System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <title>AMU Lab Technical Assistance - Chat</title>
     <style>
-        /* የፍላሽ መልዕክት ማስዋቢያ */
-        .flash-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1050;
-            min-width: 300px;
-        }
-        .custom-flash {
-            background-color: #2ec4b6;
-            color: white;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
+        body { 
+            background: url("{{ url_for('static', filename='images.jpg') }}") no-repeat center center fixed; 
+            background-size: cover; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            height: 100vh;
         }
+
+        .top-nav {
+            background: rgba(0, 77, 64, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px 30px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            box-shadow: 0 3px 20px rgba(0,0,0,0.35);
+            z-index: 1000;
+        }
+
+        .nav-left { justify-self: start; font-size: 13px; }
+        .nav-left b { color: #ff9800; }
+        .nav-center { justify-self: center; text-align: center; }
+        .nav-center h1 { margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 1px; }
+        .nav-right { justify-self: end; display: flex; align-items: center; }
+
+        .main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .chat-card {
+            width: 500px;
+            height: 620px;
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+        }
+
+        .chat-header {
+            background: rgba(0, 77, 64, 0.05);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .chat-logo { width: 55px; height: 55px; border-radius: 50%; border: 2px solid #004d40; background: white; }
+        .chat-header h2 { margin: 0; color: #004d40; font-size: 16px; font-weight: bold; text-transform: uppercase; }
+
+        .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: rgba(245, 245, 245, 0.3); }
+        .msg-row { display: flex; width: 100%; }
+        .msg-me { justify-content: flex-end; }
+        .msg-other { justify-content: flex-start; }
+        
+        .bubble { max-width: 75%; padding: 10px 15px; border-radius: 18px; font-size: 14.5px; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .bubble-me { background: #e1f5fe; color: #1a237e; border-bottom-right-radius: 2px; }
+        .bubble-other { background: #ffffff; color: #202020; border-bottom-left-radius: 2px; }
+
+        .chat-image { max-width: 100%; max-height: 200px; border-radius: 10px; margin-top: 5px; display: block; object-fit: cover; }
+        
+        /* የፋይል ማውረጃ ሊንክ ዲዛይን */
+        .file-download-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 77, 64, 0.1);
+            color: #004d40;
+            padding: 8px 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 13px;
+            margin-top: 5px;
+            border: 1px dashed #004d40;
+        }
+        .file-download-link:hover { background: rgba(0, 77, 64, 0.2); }
+
+        .sender-name { font-size: 11px; font-weight: bold; color: #00796b; margin-bottom: 3px; display: block; }
+        .meta-info { font-size: 9px; color: #757575; display: block; text-align: right; margin-top: 4px; }
+
+        .input-panel { padding: 15px 20px; background: white; border-top: 1px solid #eee; }
+        .select-receiver { width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px; font-size: 13px; outline: none; }
+        
+        .input-row { display: flex; align-items: center; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid #ddd; outline: none; font-size: 14px; }
+        
+        .file-label { cursor: pointer; color: #555; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .file-label:hover { background: #eee; color: #004d40; }
+        input[type="file"] { display: none; } 
+
+        .send-btn { background: #004d40; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .btn-reg { background: #ff9800; color: white; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12.5px; font-weight: bold; }
+        .btn-logout { color: #ffcdd2; text-decoration: none; font-size: 13.5px; margin-left: 15px; font-weight: bold; }
+        .success-flash { background: #4caf50; color: white; padding: 10px; text-align: center; font-weight: bold; position: absolute; width: 100%; top: 60px; z-index: 999; }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-    <div class="flash-container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="custom-flash flash-message animate__animated animate__fadeInRight">
-                        <span>✨ {{ message }}</span>
-                        <button type="button" class="btn-close btn-close-white ms-3" onclick="this.parentElement.remove()"></button>
-                    </div>
-                 font-weight: bold;
-                {% endfor %}
+    <div class="top-nav">
+        <div class="nav-left"><span>User: <b>{{ session['username'] }}</b></span></div>
+        <div class="nav-center"><h1>AMU LAB Technical Assistance</h1></div>
+        <div class="nav-right">
+            {% if session['username'] == 'admin' %}
+                <a href="{{ url_for('register') }}" class="btn-reg">Register User</a>
             {% endif %}
-        {% endwith %}
+            <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+        </div>
     </div>
 
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">AMU LAB Technical Assistance Chat</h4>
-                        <div>
-                            <span class="me-3">👤 {{ session['username'] }}</span>
-                            {% if session['username'] == 'admin' %}
-                                <a href="{{ url_for('register') }}" class="btn btn-warning btn-sm me-2">Register User</a>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for m in messages %}
+                <div class="success-flash">{{ m }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="main-container">
+        <div class="chat-card">
+            <div class="chat-header">
+                <img src="{{ url_for('static', filename='image_27f9e4.png') }}" class="chat-logo" alt="Logo">
+                <h2>Online Chat Platform</h2>
+            </div>
+
+            <div class="messages-area">
+                {% for msg in messages %}
+                    <div class="msg-row {% if msg.sender == session['username'] %}msg-me{% else %}msg-other{% endif %}">
+                        <div class="bubble {% if msg.sender == session['username'] %}bubble-me{% else %}bubble-other{% endif %}">
+                            {% if msg.sender != session['username'] %}
+                                <span class="sender-name">@{{ msg.sender }}</span>
                             {% endif %}
-                            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
+                            
+                            {% if msg.content %}
+                                <div>{{ msg.content }}</div>
+                            {% endif %}
+                            
+                            {% if msg.image_path %}
+                                {% if msg.image_path.endswith('.jpg') or msg.image_path.endswith('.jpeg') or msg.image_path.endswith('.png') or msg.image_path.endswith('.gif') %}
+                                    <img src="{{ url_for('static', filename=msg.image_path) }}" class="chat-image" alt="Image">
+                                {% else %}
+                                    <a href="{{ url_for('static', filename=msg.image_path) }}" class="file-download-link" download>
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 18 15 15"></polyline></svg>
+                                        <span>Download Document</span>
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                            
+                            {% if msg.sender == session['username'] %}
+                                <span class="meta-info">To: {{ msg.receiver }}</span>
+                            {% endif %}
                         </div>
                     </div>
-                    
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 border-end">
-                                <h5>Active Users</h5>
-                                <div class="list-group">
-                                    <button class="list-group-item list-group-item-action active" onclick="setReceiver('Everyone')">📢 Everyone</button>
-                                    {% for user in users %}
-                                        <button class="list-group-item list-group-item-action" onclick="setReceiver('{{ user.username }}')">💬 {{ user.username }}</button>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                {% endfor %}
+            </div>
 
-                            <div class="col-md-8 d-flex flex-column" style="height: 450px;">
-                                <div class="flex-grow-1 overflow-auto p-3 bg-white border rounded mb-3" id="chat-box">
-                                    {% for msg in messages %}
-                                        <div class="mb-3 {% if msg.sender == session['username'] %}text-end{% endif %}">
-                                            <div class="d-inline-block p-2 rounded {% if msg.sender == session['username'] %}bg-primary text-white{% else %}bg-light text-dark{% endif %}" style="max-width: 75%;">
-                                                <small class="d-block text-muted style='font-size: 0.75rem;'">From: {{ msg.sender }} To: {{ msg.receiver }}</small>
-                                                {% if msg.content %}
-                                                    <p class="mb-1">{{ msg.content }}</p>
-                                                {% endif %}
-                                                {% if msg.image_path %}
-                                                    {% if msg.image_path.endswith(('png', 'jpg', 'jpeg', 'gif')) %}
-                                                        <img src="{{ url_for('static', filename=msg.image_path) }}" class="img-fluid rounded mt-1" style="max-height: 200px;">
-                                                    {% else %}
-                                                        <a href="{{ url_for('static', filename=msg.image_path) }}" class="btn btn-sm btn-outline-secondary d-block mt-1" target="_blank">📂 View Attachment</a>
-                                                    {% endif %}
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-
-                                <form action="{{ url_for('send') }}" method="POST" enctype="multipart/form-data">
-                                    <input type="hidden" name="receiver" id="receiver-input" value="Everyone">
-                                    <div class="text-muted mb-1">Sending to: <span id="receiver-display" class="fw-bold text-success">Everyone</span></div>
-                                    <div class="input-group">
-                                        <input type="text" name="content" class="form-control" placeholder="Type your message...">
-                                        <input type="file" name="file" class="form-control" style="max-width: 200px;">
-                                        <button class="btn btn-primary" type="submit">Send</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+            <div class="input-panel">
+                <form action="{{ url_for('send') }}" method="POST" enctype="multipart/form-data">
+                    <select name="receiver" class="select-receiver">
+                        <option value="Everyone">Everyone (Public Chat)</option>
+                        {% for u in users %}
+                            <option value="{{ u.username }}">Direct Message: {{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-row">
+                        <label class="file-label" title="Attach File (Image, Word, PPT, Excel)">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                            <input type="file" name="file" accept=".png, .jpg, .jpeg, .gif, .docx, .doc, .pptx, .ppt, .xlsx, .xls, .pdf">
+                        </label>
+                        
+                        <input type="text" name="content" placeholder="Type your message or attach a file..." autocomplete="off">
+                        
+                        <button type="submit" class="send-btn">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                        </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            // የቻት ቦክሱን ሁልጊዜ መጨረሻ ላይ እንዲያሳይ ወደ ታች ዝቅ ያደርገዋል
-            const chatBox = document.getElementById('chat-box');
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            // ፍላሽ መልዕክቱን ፈልጎ ከ 3 ሰከንድ በኋላ ያጠፋዋል
-            const flashMessages = document.querySelectorAll('.flash-message');
-            flashMessages.forEach((message) => {
-                setTimeout(() => {
-                    message.style.transition = "all 0.6s ease";
-                    message.style.opacity = "0";
-                    message.style.transform = "translateX(50px)";
-                    setTimeout(() => {
-                        message.remove();
-                    }, 600);
-                }, 3000); // 3 ሰከንድ
-            });
-        });
-
-        function setReceiver(username) {
-            document.getElementById('receiver-input').value = username;
-            document.getElementById('receiver-display').innerText = username;
-        }
-    </script>
 </body>
 </html>
