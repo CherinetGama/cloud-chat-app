@@ -6,21 +6,21 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "amu_lab_secret_key_123" 
-
 # --- የ RENDER POSTGRESQL ዳታቤዝ ማዋቀር ---
 import os
 
 RENDER_DB_URL = os.environ.get("DATABASE_URL")
 
 if RENDER_DB_URL:
-    # ሊንኩ በትላልቅ ፊደላት ከተጻፈ ወደ ትናንሽ ፊደላት ይቀይረዋል
+    # ሊንኩ በትላልቅ ፊደላት ቢመጣ ወደ ትናንሽ ፊደላት ይቀይረዋል
     RENDER_DB_URL = RENDER_DB_URL.lower()
     
     if RENDER_DB_URL.startswith("postgres://"):
         RENDER_DB_URL = RENDER_DB_URL.replace("postgres://", "postgresql://", 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = RENDER_URL if 'RENDER_DB_URL' in locals() and RENDER_DB_URL else RENDER_DB_URL
+app.config['SQLALCHEMY_DATABASE_URI'] = RENDER_DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 # የፋይል ማስቀመጫ ማዋቀር (ምስሎች፣ ዎርድ፣ ኤክሴል እና ፒፒቲ ፋይሎች)
 UPLOAD_FOLDER = 'static/uploads'
