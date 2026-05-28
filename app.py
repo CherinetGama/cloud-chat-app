@@ -99,7 +99,7 @@ def login():
             session['username'] = username
             return redirect(url_for('index'))
         else:
-            flash("ያልተሳካ ሙከራ! እባክዎ መረጃውን ያረጋግጡ።")
+            flash("Action failed! Please verify your details.")
             return redirect(url_for('login'))
             
     return render_template('login.html')
@@ -107,14 +107,14 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if 'username' not in session or session['username'] != 'admin':
-        return "ይህንን ገጽ ለመጠቀም የአድሚን ፈቃድ ያስፈልጋል!", 403
+        return "You need admin privileges to use this page.!", 403
         
     if request.method == 'POST':
         username = request.form.get('username').strip().lower()
         password = request.form.get('password')
         
         if User.query.filter_by(username=username).first():
-            flash("ይህ ተጠቃሚ ስም አስቀድሞ ተመዝግቧል!")
+            flash("This username is already registered.!")
             return redirect(url_for('register'))
             
         hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
@@ -122,7 +122,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         
-        flash(f'ተጠቃሚ "{username}" በተሳካ ሁኔታ ተመዝግቧል!')
+        flash(f'User "{username}" Registration successful.!')
         return redirect(url_for('index'))
         
     return render_template('register.html')
